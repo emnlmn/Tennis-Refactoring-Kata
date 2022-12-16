@@ -26,12 +26,28 @@ class TennisGame1 implements TennisGame
 
     public function wonPoint($playerName)
     {
-        if ($this->player1->name()->equals(new Name($playerName))) {
+        $inputName = new Name($playerName);
+
+        if ($inputName->equals($this->player1->name())) {
             $this->player1->wonPoint();
         }
-        if ($this->player2->name()->equals(new Name($playerName))) {
+
+        if ($inputName->equals($this->player2->name())) {
             $this->player2->wonPoint();
         }
+    }
+
+    public function getScore()
+    {
+        if ($this->isPlayerPointEquals($this->player1, $this->player2)) {
+            return $this->getScoreWhenEquals($this->player1->point());
+        }
+
+        if ($this->isGameOverOrAdvantages($this->player1, $this->player2)) {
+            return $this->getScoreWhenGameOverOrAdvantage($this->player1, $this->player2);
+        }
+
+        return $this->getRegularScore($this->player1, $this->player2);
     }
 
     private function getScoreWhenEquals(Point $point): string
@@ -44,7 +60,7 @@ class TennisGame1 implements TennisGame
         };
     }
 
-    private function getScoreWhenAdvantage(Player $player1, Player $player2): string
+    private function getScoreWhenGameOverOrAdvantage(Player $player1, Player $player2): string
     {
         $scoreDelta = $player1->point()->value() - $player2->point()->value();
 
@@ -66,16 +82,13 @@ class TennisGame1 implements TennisGame
         return self::SCORES[$point->value()];
     }
 
-    public function getScore()
+    private function isPlayerPointEquals(Player $player1, Player $player2): bool
     {
-        if ($this->player1->point()->equals($this->player2->point())) {
-            return $this->getScoreWhenEquals($this->player1->point());
-        }
+        return $player1->point()->equals($player2->point());
+    }
 
-        if ($this->player1->point()->value() >= 4 || $this->player2->point()->value() >= 4) {
-            return $this->getScoreWhenAdvantage($this->player1, $this->player2);
-        }
-
-        return $this->getRegularScore($this->player1, $this->player2);
+    private function isGameOverOrAdvantages(Player $player1, Player $player2): bool
+    {
+        return $player1->point()->value() >= 4 || $player2->point()->value() >= 4;
     }
 }
